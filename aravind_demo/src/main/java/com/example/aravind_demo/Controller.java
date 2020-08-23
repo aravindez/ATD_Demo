@@ -4,22 +4,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-//import Customer;
 
 @RestController
 public class Controller {
@@ -46,18 +43,25 @@ public class Controller {
 	 * GET Request for "/customers"
 	 * Handles retrieving all customers as well as filtered results based on parameters
 	 * 
-	 * @param	firstName first name to filter by
-	 * @param	lastName last name to filter by
-	 * @param	display boolean value informing the API whether results should be sent as HTML or JSON
-	 * @return	HTML or JSON representation of results from DB
+	 * @param	id			id to search for (takes precedence)
+	 * @param	firstName 	first name to filter by
+	 * @param	lastName 	last name to filter by
+	 * @return	JSON 		representation of results from DB
 	 */
 	@GetMapping("/customers")
 	public String getCustomers(
+			@RequestParam(name="id", required=false) String id,
 			@RequestParam(name="firstName", required=false) String firstName,
 			@RequestParam(name="lastName", required=false) String lastName) {
 		List<Customer> results;
-		if (firstName == null && lastName == null) {
+		if (id == null && firstName == null && lastName == null) {
 			results = repo.findAll();
+		} else if (id != null) {
+			results = new ArrayList<Customer>();
+			Optional<Customer> result = this.repo.findById(id);
+			if (result.isPresent()) {
+				results.add(result.get());
+			}
 		} else if (lastName == null) {
 			results = repo.findByFirstName(firstName);
 		} else if (firstName == null) {
@@ -70,16 +74,14 @@ public class Controller {
 	
 	/**
 	 * POST Request for "/customers"
-	 * Adds new Customer to DB
+	 * Checks if firstName/lastName was passed by comparing to a default Customer object then adds new Customer to DB
 	 * 
 	 * @param	newCustomer Customer object describing new Customer
 	 */
 	@PostMapping("/customers")
-	public ResponseEntity<Object> postCustomers(@RequestBody Customer newCustomer) {
-		Customer badRequest = new Customer();
-		if (newCustomer.equals(badRequest)) {
-			System.out.println("\nBAD REQUEST");
-			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+	public ResponseEntity<Object> postCustomers(@RequestBody(required=true) Customer newCustomer) {
+		if (newCustomer.getId() != null || newCustomer.getFirstName().equals("NA") || newCustomer.getLastName().equals("NA")) {
+			return new ResponseEntity<Object>("{\"error\": \"Missing or invalid new customer information.\"}", HttpStatus.BAD_REQUEST);
 		} else {
 			repo.save(newCustomer);
 			return new ResponseEntity<Object>(this.gson.toJson(newCustomer), HttpStatus.OK);
@@ -90,19 +92,19 @@ public class Controller {
 	
 	/**
 	 * PUT Request for "/customers"
-	 * Updates existing Customer
+	 * Checks if firstName/lastName was passed by comparing to a default Customer object then updates existing Customer in DB
 	 * 
-	 * @param	updatedCustomer
+	 * @param updatedCustomer	Customer object holding updated customer info
 	 */
 	@PutMapping("/customers")
-	public ResponseEntity<Object> putCustomers(@RequestBody Customer updatedCustomer) {
-		Customer badRequest = new Customer();
-		if (updatedCustomer.equals(badRequest)) {
-			System.out.println("\nBAD REQUEST");
-			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+	public ResponseEntity<Object> putCustomers(@RequestBody(required=true) Customer updatedCustomer) {
+		if (updatedCustomer.getFirstName().equals("NA") || updatedCustomer.getLastName().equals("NA")) {
+			return new ResponseEntity<Object>("{\"error\": \"Missing or invalid updated customer information.\"}", HttpStatus.BAD_REQUEST);
+		} else if (!this.repo.findById(updatedCustomer.getId()).isPresent()) {
+			return new ResponseEntity<Object>("{\"error\": \"Customer does not exist in DB.\"}", HttpStatus.BAD_REQUEST);
 		} else {
 			repo.save(updatedCustomer);
-			return new ResponseEntity<Object>(this.gson.toJson(updatedCustomer), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Object>(this.gson.toJson(updatedCustomer), HttpStatus.OK);
 		}
 	}
 	

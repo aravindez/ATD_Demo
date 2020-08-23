@@ -2,6 +2,7 @@ package com.example.aravind_demo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -9,11 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import reactor.core.publisher.Mono;
 
 @WebFluxTest
+@ActiveProfiles(profiles = {"test"})
 class ControllerTests {
 	
 	@MockBean
@@ -28,7 +31,7 @@ class ControllerTests {
 	}
 	
 	/**
-	 * Test - GET all customers
+	 * GET -  all customers
 	 * @throws Exception
 	 */
 	@Test
@@ -53,6 +56,38 @@ class ControllerTests {
 			.jsonPath("$.[1].lastName").isEqualTo("Ruisi")
 			.jsonPath("$.[2].firstName").isEqualTo("Alice")
 			.jsonPath("$.[2].lastName").isEqualTo("Smith");
+	}
+	
+	/**
+	 * GET - customer by id
+	 * @throws Exception
+	 */
+	@Test
+	public void getCustomerById() throws Exception {
+		Customer testCustomer = new Customer("asdf", "John", "Smith");
+		
+		Mockito.when(repo.findById("asdf")).thenReturn(Optional.of(testCustomer));
+		Mockito.when(repo.findById("fdsa")).thenReturn(Optional.empty());
+		
+		this.webTestClient
+			.get()
+			.uri(this.uri + "?id=asdf")
+			.accept(MediaType.APPLICATION_JSON)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.jsonPath("$.[0].id").isEqualTo("asdf")
+			.jsonPath("$.[0].firstName").isEqualTo("John")
+			.jsonPath("$.[0].lastName").isEqualTo("Smith");
+		
+		this.webTestClient
+			.get()
+			.uri(this.uri + "?id=fdsa")
+			.accept(MediaType.APPLICATION_JSON)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.jsonPath("$").isEmpty();
 	}
 	
 	/**
@@ -93,6 +128,10 @@ class ControllerTests {
 			.jsonPath("$.[0].lastName").isEqualTo("Smith");
 	}
 
+	/**
+	 * GET - 2 sets of customers by last name
+	 * @throws Exception
+	 */
 	@Test
 	public void getCustomersByLastName() throws Exception {
 		List<Customer> customersSmith = new ArrayList<Customer>();
@@ -127,6 +166,10 @@ class ControllerTests {
 			.jsonPath("$.[0].lastName").isEqualTo("Ruisi");
 	}
 
+	/**
+	 * GET - each customer by first and last name
+	 * @throws Exception
+	 */
 	@Test
 	public void getCustomersByFirstNameAndLastName() throws Exception {
 		List<Customer> johnSmith = new ArrayList<Customer>();
@@ -171,15 +214,100 @@ class ControllerTests {
 			.jsonPath("$.[0].lastName").isEqualTo("Smith");
 	}
 	
+	/**
+	 * POST - save new customer to DB
+	 * @throws Exception
+	 */
 	@Test
 	public void postCustomers() throws Exception {
+		Customer badCustomer = new Customer();
 		Customer customer = new Customer("John", "Smith");
+		
+		//Mockito.when(this.repo.save(badCustomer)).thenReturn(badCustomer);
+		//Mockito.when(this.repo.save(customer)).thenReturn(customer);
+		
+		this.webTestClient
+			.post()
+			.uri(this.uri)
+			.exchange()
+			.expectStatus().isBadRequest();
+		
+		this.webTestClient
+			.post()
+			.uri(this.uri)
+			.body(Mono.just(badCustomer), Customer.class)
+			.exchange()
+			.expectStatus().isBadRequest();
 		
 		this.webTestClient
 			.post()
 			.uri(this.uri)
 			.accept(MediaType.APPLICATION_JSON)
 			.body(Mono.just(customer), Customer.class)
+			.exchange()
+			.expectStatus().isOk();
+	}
+
+	/**
+	 * PUT - update existing customer in DB
+	 * @throws Exception
+	 */
+	@Test
+	public void putCustomers() throws Exception {
+		Customer badCustomer = new Customer();
+		Customer dneCustomer = new Customer("1234asdf", "John", "Smith");
+		Customer existingCustomer = new Customer("1a2s3d4f", "John", "Smith");
+
+		//Mockito.when(this.repo.save(badCustomer)).thenReturn(badCustomer);
+		//Mockito.when(this.repo.save(existingCustomer)).thenReturn(customer);
+		
+		Mockito.when(this.repo.findById(dneCustomer.getId())).thenReturn(Optional.empty());
+		Mockito.when(this.repo.findById(existingCustomer.getId())).thenReturn(Optional.of(existingCustomer));
+		
+		this.webTestClient
+			.put()
+			.uri(this.uri)
+			.exchange()
+			.expectStatus().isBadRequest();
+		
+		this.webTestClient
+			.put()
+			.uri(this.uri)
+			.body(Mono.just(badCustomer), Customer.class)
+			.exchange()
+			.expectStatus().isBadRequest();
+		
+		this.webTestClient
+			.put()
+			.uri(this.uri)
+			.body(Mono.just(dneCustomer), Customer.class)
+			.exchange()
+			.expectStatus().isBadRequest();
+		
+		this.webTestClient
+			.put()
+			.uri(this.uri)
+			.accept(MediaType.APPLICATION_JSON)
+			.body(Mono.just(existingCustomer), Customer.class)
+			.exchange()
+			.expectStatus().isOk();
+	}
+	
+	/**
+	 * DELETE - deletes customer with the given id
+	 * @throws Exception
+	 */
+	@Test
+	public void deleteCustomers() throws Exception {
+		this.webTestClient
+			.delete()
+			.uri(this.uri)
+			.exchange()
+			.expectStatus().isBadRequest();
+
+		this.webTestClient
+			.delete()
+			.uri(this.uri + "?id=asdf")
 			.exchange()
 			.expectStatus().isOk();
 	}

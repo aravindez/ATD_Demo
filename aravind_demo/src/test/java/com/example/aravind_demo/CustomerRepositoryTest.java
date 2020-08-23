@@ -28,6 +28,10 @@ class CustomerRepositoryTest {
 	
 	private List<Customer> testCustomers;
 	
+	/**
+	 * Constructor
+	 * Create an ArrayList of test customers
+	 */
 	public CustomerRepositoryTest() {
 		this.testCustomers = new ArrayList<Customer>();
 		this.testCustomers.add(new Customer("testFirst1", "testLast1"));
@@ -35,121 +39,164 @@ class CustomerRepositoryTest {
 		this.testCustomers.add(new Customer("testFirst2", "testLast1"));
 	}
 	
+	/**
+	 * Test saving customers
+	 */
 	@Test
 	@Order(1)
-	public void testSaveCustomer() {
+	public void testSaveCustomer() throws Exception {
 		this.repo.save(testCustomers.get(0));
 		this.repo.save(testCustomers.get(1));
 		this.repo.save(testCustomers.get(2));
 
-		List<Customer> savedCustomers = this.repo.findByFirstNameAndLastName(testCustomers.get(0).firstName, testCustomers.get(0).lastName);
+		List<Customer> savedCustomers = this.repo.findByFirstNameAndLastName(testCustomers.get(0).getFirstName(), testCustomers.get(0).getLastName());
 		assertEquals(1, savedCustomers.size());
-		assertEquals(testCustomers.get(0).firstName, savedCustomers.get(0).firstName);
-		assertEquals(testCustomers.get(0).lastName, savedCustomers.get(0).lastName);
+		assertEquals(testCustomers.get(0).getFirstName(), savedCustomers.get(0).getFirstName());
+		assertEquals(testCustomers.get(0).getLastName(), savedCustomers.get(0).getLastName());
 
-		savedCustomers = this.repo.findByFirstNameAndLastName(testCustomers.get(1).firstName, testCustomers.get(1).lastName);
+		savedCustomers = this.repo.findByFirstNameAndLastName(testCustomers.get(1).getFirstName(), testCustomers.get(1).getLastName());
 		assertEquals(1, savedCustomers.size());
-		assertEquals(testCustomers.get(1).firstName, savedCustomers.get(0).firstName);
-		assertEquals(testCustomers.get(1).lastName, savedCustomers.get(0).lastName);
+		assertEquals(testCustomers.get(1).getFirstName(), savedCustomers.get(0).getFirstName());
+		assertEquals(testCustomers.get(1).getLastName(), savedCustomers.get(0).getLastName());
 
-		savedCustomers = this.repo.findByFirstNameAndLastName(testCustomers.get(2).firstName, testCustomers.get(2).lastName);
+		savedCustomers = this.repo.findByFirstNameAndLastName(testCustomers.get(2).getFirstName(), testCustomers.get(2).getLastName());
 		assertEquals(1, savedCustomers.size());
-		assertEquals(testCustomers.get(2).firstName, savedCustomers.get(0).firstName);
-		assertEquals(testCustomers.get(2).lastName, savedCustomers.get(0).lastName);
+		assertEquals(testCustomers.get(2).getFirstName(), savedCustomers.get(0).getFirstName());
+		assertEquals(testCustomers.get(2).getLastName(), savedCustomers.get(0).getLastName());
 	}
 	
+	/**
+	 * test findAll customers
+	 */
 	@Test
 	@Order(2)
-	public void testFindAllCustomers() {
+	public void testFindAllCustomers() throws Exception {
 		List<Customer> savedCustomers = this.repo.findAll();
 		System.out.println(savedCustomers);
 		assertEquals(3, savedCustomers.size());
 
-		assertEquals(testCustomers.get(0).firstName, savedCustomers.get(0).firstName);
-		assertEquals(testCustomers.get(0).lastName, savedCustomers.get(0).lastName);
-		assertEquals(testCustomers.get(1).firstName, savedCustomers.get(1).firstName);
-		assertEquals(testCustomers.get(1).lastName, savedCustomers.get(1).lastName);
-		assertEquals(testCustomers.get(2).firstName, savedCustomers.get(2).firstName);
-		assertEquals(testCustomers.get(2).lastName, savedCustomers.get(2).lastName);
+		assertEquals(testCustomers.get(0).getFirstName(), savedCustomers.get(0).getFirstName());
+		assertEquals(testCustomers.get(0).getLastName(), savedCustomers.get(0).getLastName());
+		assertEquals(testCustomers.get(1).getFirstName(), savedCustomers.get(1).getFirstName());
+		assertEquals(testCustomers.get(1).getLastName(), savedCustomers.get(1).getLastName());
+		assertEquals(testCustomers.get(2).getFirstName(), savedCustomers.get(2).getFirstName());
+		assertEquals(testCustomers.get(2).getLastName(), savedCustomers.get(2).getLastName());
 	}
 	
+	/**
+	 * test finding customers by id
+	 * @throws Exception
+	 */
+	@Test @Order(3)
+	public void testFindById() throws Exception {
+		List<Customer> savedCustomers = this.repo.findAll();
+		
+		Optional<Customer> savedCustomer = this.repo.findById(savedCustomers.get(0).getId());
+		assertEquals(true, savedCustomer.isPresent());
+		
+		assertEquals(savedCustomers.get(0).getId(), savedCustomer.get().getId());
+		assertEquals(savedCustomers.get(0).getFirstName(), savedCustomer.get().getFirstName());
+		assertEquals(savedCustomers.get(0).getLastName(), savedCustomer.get().getLastName());
+		
+		savedCustomer = this.repo.findById(savedCustomers.get(1).getId());
+		assertEquals(true, savedCustomer.isPresent());
+		
+		assertEquals(savedCustomers.get(1).getId(), savedCustomer.get().getId());
+		assertEquals(savedCustomers.get(1).getFirstName(), savedCustomer.get().getFirstName());
+		assertEquals(savedCustomers.get(1).getLastName(), savedCustomer.get().getLastName());
+		
+		savedCustomer = this.repo.findById(savedCustomers.get(2).getId());
+		assertEquals(true, savedCustomer.isPresent());
+		
+		assertEquals(savedCustomers.get(2).getId(), savedCustomer.get().getId());
+		assertEquals(savedCustomers.get(2).getFirstName(), savedCustomer.get().getFirstName());
+		assertEquals(savedCustomers.get(2).getLastName(), savedCustomer.get().getLastName());
+	}
+	
+	/**
+	 * test finding customers by first name
+	 */
 	@Test
-	@Order(3)
-	public void testFindByFirstName() {
+	@Order(4)
+	public void testFindByFirstName() throws Exception {
 		List<Customer> savedCustomers = this.repo.findByFirstName("testFirst1");
 		assertEquals(2, savedCustomers.size());
 
-		assertEquals(testCustomers.get(0).firstName, savedCustomers.get(0).firstName);
-		assertEquals(testCustomers.get(0).lastName, savedCustomers.get(0).lastName);
-		assertEquals(testCustomers.get(1).firstName, savedCustomers.get(1).firstName);
-		assertEquals(testCustomers.get(1).lastName, savedCustomers.get(1).lastName);
+		assertEquals(testCustomers.get(0).getFirstName(), savedCustomers.get(0).getFirstName());
+		assertEquals(testCustomers.get(0).getLastName(), savedCustomers.get(0).getLastName());
+		assertEquals(testCustomers.get(1).getFirstName(), savedCustomers.get(1).getFirstName());
+		assertEquals(testCustomers.get(1).getLastName(), savedCustomers.get(1).getLastName());
 		
 		savedCustomers = this.repo.findByFirstName("testFirst2");
 		assertEquals(1, savedCustomers.size());
 
-		assertEquals(testCustomers.get(2).firstName, savedCustomers.get(0).firstName);
-		assertEquals(testCustomers.get(2).lastName, savedCustomers.get(0).lastName);
+		assertEquals(testCustomers.get(2).getFirstName(), savedCustomers.get(0).getFirstName());
+		assertEquals(testCustomers.get(2).getLastName(), savedCustomers.get(0).getLastName());
 	}
 	
+	/**
+	 * test finding customers by last name
+	 */
 	@Test
-	@Order(4)
-	public void testFindByLastName() {
+	@Order(5)
+	public void testFindByLastName() throws Exception {
 		List<Customer> savedCustomers = this.repo.findByLastName("testLast1");
 		assertEquals(2, savedCustomers.size());
 
-		assertEquals(testCustomers.get(0).firstName, savedCustomers.get(0).firstName);
-		assertEquals(testCustomers.get(0).lastName, savedCustomers.get(0).lastName);
-		assertEquals(testCustomers.get(2).firstName, savedCustomers.get(1).firstName);
-		assertEquals(testCustomers.get(2).lastName, savedCustomers.get(1).lastName);
+		assertEquals(testCustomers.get(0).getFirstName(), savedCustomers.get(0).getFirstName());
+		assertEquals(testCustomers.get(0).getLastName(), savedCustomers.get(0).getLastName());
+		assertEquals(testCustomers.get(2).getFirstName(), savedCustomers.get(1).getFirstName());
+		assertEquals(testCustomers.get(2).getLastName(), savedCustomers.get(1).getLastName());
 		
 		savedCustomers = this.repo.findByLastName("testLast2");
 		assertEquals(1, savedCustomers.size());
 
-		assertEquals(testCustomers.get(1).firstName, savedCustomers.get(0).firstName);
-		assertEquals(testCustomers.get(1).lastName, savedCustomers.get(0).lastName);
+		assertEquals(testCustomers.get(1).getFirstName(), savedCustomers.get(0).getFirstName());
+		assertEquals(testCustomers.get(1).getLastName(), savedCustomers.get(0).getLastName());
 	}
 	
-	@Test
-	@Order(5)
-	public void testFindByFirstNameAndLastName() {
-		List<Customer> savedCustomers = this.repo.findByFirstNameAndLastName(testCustomers.get(0).firstName, testCustomers.get(0).lastName);
-		assertEquals(1, savedCustomers.size());
-		assertEquals(testCustomers.get(0).firstName, savedCustomers.get(0).firstName);
-		assertEquals(testCustomers.get(0).lastName, savedCustomers.get(0).lastName);
-		
-		savedCustomers = this.repo.findByFirstNameAndLastName(testCustomers.get(1).firstName, testCustomers.get(1).lastName);
-		assertEquals(1, savedCustomers.size());
-		assertEquals(testCustomers.get(1).firstName, savedCustomers.get(0).firstName);
-		assertEquals(testCustomers.get(1).lastName, savedCustomers.get(0).lastName);
-		
-		savedCustomers = this.repo.findByFirstNameAndLastName(testCustomers.get(2).firstName, testCustomers.get(2).lastName);
-		assertEquals(1, savedCustomers.size());
-		assertEquals(testCustomers.get(2).firstName, savedCustomers.get(0).firstName);
-		assertEquals(testCustomers.get(2).lastName, savedCustomers.get(0).lastName);
-	}
-	
+	/**
+	 * test finding customers by first and last name
+	 */
 	@Test
 	@Order(6)
-	public void testUpdateCustomer() {
-		this.testCustomers = this.repo.findAll();
-		Customer updatedCustomer = new Customer(this.testCustomers.get(0).id, "testFirst3", "testLast3");
-		this.repo.save(updatedCustomer);
-
-		Optional<Customer> savedCustomer = this.repo.findById(this.testCustomers.get(0).id);
-		assertEquals(true, savedCustomer.isPresent());
-		assertEquals(updatedCustomer.id, savedCustomer.get().id);
-		assertEquals(updatedCustomer.firstName, savedCustomer.get().firstName);
-		assertEquals(updatedCustomer.lastName, savedCustomer.get().lastName);
+	public void testFindByFirstNameAndLastName() throws Exception {
+		List<Customer> savedCustomers = this.repo.findByFirstNameAndLastName(testCustomers.get(0).getFirstName(), testCustomers.get(0).getLastName());
+		assertEquals(1, savedCustomers.size());
+		assertEquals(testCustomers.get(0).getFirstName(), savedCustomers.get(0).getFirstName());
+		assertEquals(testCustomers.get(0).getLastName(), savedCustomers.get(0).getLastName());
+		
+		savedCustomers = this.repo.findByFirstNameAndLastName(testCustomers.get(1).getFirstName(), testCustomers.get(1).getLastName());
+		assertEquals(1, savedCustomers.size());
+		assertEquals(testCustomers.get(1).getFirstName(), savedCustomers.get(0).getFirstName());
+		assertEquals(testCustomers.get(1).getLastName(), savedCustomers.get(0).getLastName());
+		
+		savedCustomers = this.repo.findByFirstNameAndLastName(testCustomers.get(2).getFirstName(), testCustomers.get(2).getLastName());
+		assertEquals(1, savedCustomers.size());
+		assertEquals(testCustomers.get(2).getFirstName(), savedCustomers.get(0).getFirstName());
+		assertEquals(testCustomers.get(2).getLastName(), savedCustomers.get(0).getLastName());
 	}
 	
 	@Test
 	@Order(7)
-	public void testDeleteCustomer() {
+	public void testUpdateCustomer() throws Exception {
+		this.testCustomers = this.repo.findAll();
+		Customer updatedCustomer = new Customer(this.testCustomers.get(0).getId(), "testFirst3", "testLast3");
+		this.repo.save(updatedCustomer);
+
+		Optional<Customer> savedCustomer = this.repo.findById(this.testCustomers.get(0).getId());
+		assertEquals(true, savedCustomer.isPresent());
+		assertEquals(updatedCustomer, savedCustomer.get());
+	}
+	
+	@Test
+	@Order(8)
+	public void testDeleteCustomer() throws Exception {
 		this.testCustomers = this.repo.findAll();
 		Optional<Customer> savedCustomer;
 		for (Customer c : this.testCustomers) {
-			this.repo.deleteById(c.id);
-			savedCustomer = repo.findById(c.id);
+			this.repo.deleteById(c.getId());
+			savedCustomer = repo.findById(c.getId());
 			assertEquals(false, savedCustomer.isPresent());
 		}
 		List<Customer> savedCustomers = this.repo.findAll();

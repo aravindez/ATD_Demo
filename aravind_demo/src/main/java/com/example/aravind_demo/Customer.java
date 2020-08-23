@@ -5,6 +5,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.google.gson.Gson;
 
+import lombok.Getter;
+//import lombok.Setter;
+
 /**
  * Customer Entity
  * Holds simple information on a test customer: id, first name, and last name.
@@ -15,15 +18,17 @@ import com.google.gson.Gson;
 @Document(collection = "customers")
 public class Customer {
 
-	@Id
-	public String id;
+	@Id @Getter
+	private String id;
 	
-	public String firstName;
-	public String lastName;
+	@Getter
+	private String firstName;
+	@Getter
+	private String lastName;
 	
 	/**
 	 * Default Constructor
-	 * Populates Customer with first name, testFirst, and last name, testLast.
+	 * Populates Customer with first name, NA, and last name, NA.
 	 */
 	public Customer() {
 		this("NA", "NA");
@@ -65,26 +70,17 @@ public class Customer {
 		}
 		
 		Customer that = (Customer) o;
-		if (that.id != this.id) {
-			System.out.println("ID MISMATCH");
-			System.out.println("this.id (" + (this.id instanceof String) + "): " + this.id);
-			System.out.println("this.id (" + (this.id instanceof String) + "): " + this.id);
-			return false;
-		} else if (that.firstName != this.firstName) {
-			System.out.println("FIRSTNAME MISMATCH");
-			return false;
-		} else if (that.lastName != this.lastName) {
-			System.out.println("LASTNAME MISMATCH");
-			return false;
-		} else {
-			return true;
+		if (this.id == null && that.id == null) {
+			if (that.firstName.equals(this.firstName) && that.lastName.equals(this.lastName)) {
+				return true;
+			}
+		} else if (this.id == null || that.id == null) { return false; }
+		else {
+			if (that.id.equals(this.id) && that.firstName.equals(this.firstName) && that.lastName.equals(this.lastName)) {
+				return true;
+			}
 		}
-
-		/*
-		if (that.id == this.id && that.firstName == this.firstName && that.lastName == this.lastName) {
-			return true;
-		} else { return false; }
-		*/
+		return false;
 	}
 	
 	public String toJSON() {

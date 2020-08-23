@@ -2,7 +2,7 @@ package com.example.aravind_demo;
 
 import java.util.function.Predicate;
 
-import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -19,8 +19,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2WebFlux;
 @EnableSwagger2WebFlux
 public class Application implements CommandLineRunner {
 	
-	@Autowired
-	private CustomerRepository repo;
+	//@Autowired
+	//private CustomerRepository repo;
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
@@ -39,6 +39,7 @@ public class Application implements CommandLineRunner {
 		*/
 	}
 	
+	// SWAGGER_UI - necessary methods
 	@Bean
     public Docket publishedAPI() {
         return (new Docket(DocumentationType.SWAGGER_2)).groupName("Test Service").apiInfo(this.apiInfo()).select().paths(this.servicePaths()).build();
@@ -49,7 +50,7 @@ public class Application implements CommandLineRunner {
     }
 
     private ApiInfo apiInfo() {
-        return (new ApiInfoBuilder()).title("Accounts REST API").description("REST API")
+        return (new ApiInfoBuilder()).title("Customers REST API").description("REST API")
                 .license("Apache License Version 2.0")
                 .licenseUrl("https://github.com/springfox/springfox/blob/master/LICENSE").version("1.0").build();
     }
