@@ -80,6 +80,7 @@ public class Controller {
 	 */
 	@PostMapping("/customers")
 	public ResponseEntity<Object> postCustomers(@RequestBody(required=true) Customer newCustomer) {
+		// Business Logic in front end can (should?) handle this check, but included it anyway
 		if (newCustomer.getId() != null || newCustomer.getFirstName().equals("NA") || newCustomer.getLastName().equals("NA")) {
 			return new ResponseEntity<Object>("{\"error\": \"Missing or invalid new customer information.\"}", HttpStatus.BAD_REQUEST);
 		} else {
@@ -98,6 +99,7 @@ public class Controller {
 	 */
 	@PutMapping("/customers")
 	public ResponseEntity<Object> putCustomers(@RequestBody(required=true) Customer updatedCustomer) {
+		// Business Logic in front end can (should?) handle this check, but included it anyway
 		if (updatedCustomer.getFirstName().equals("NA") || updatedCustomer.getLastName().equals("NA")) {
 			return new ResponseEntity<Object>("{\"error\": \"Missing or invalid updated customer information.\"}", HttpStatus.BAD_REQUEST);
 		} else if (!this.repo.findById(updatedCustomer.getId()).isPresent()) {
