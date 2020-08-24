@@ -10,14 +10,17 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.runner.RunWith;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.context.ActiveProfiles;
 
-@ExtendWith(SpringExtension.class)
+//@RunWith(SpringRunner.class)
+//@ExtendWith(SpringExtension.class)
 @DataMongoTest
 @TestMethodOrder(OrderAnnotation.class)
 @ActiveProfiles(profiles = {"test"})
@@ -72,7 +75,6 @@ class CustomerRepositoryTest {
 	@Order(2)
 	public void testFindAllCustomers() throws Exception {
 		List<Customer> savedCustomers = this.repo.findAll();
-		System.out.println(savedCustomers);
 		assertEquals(3, savedCustomers.size());
 
 		assertEquals(testCustomers.get(0).getFirstName(), savedCustomers.get(0).getFirstName());

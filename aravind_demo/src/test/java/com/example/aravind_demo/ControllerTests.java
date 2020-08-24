@@ -16,7 +16,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
 @WebFluxTest
-@ActiveProfiles(profiles = {"test"})
+@ActiveProfiles(profiles= {"test"})
 class ControllerTests {
 	
 	@MockBean
